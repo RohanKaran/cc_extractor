@@ -1,0 +1,36 @@
+<div style="text-align: center; margin-top: 2rem">
+  {% if messages %}
+    {% for message in messages %}
+        <div class="message">
+            {{ message|urlize }}
+        </div>
+    {% endfor %}
+  {% endif %}
+  <form method="post" enctype="multipart/form-data" name="upload">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" name="action" value="upload">Upload</button>
+  </form>
+  <form method="post" style="margin-top: 2rem">
+    {% csrf_token %}
+    {{ search_form.as_p }}
+    <button type="submit" name="action" value="search">Search</button>
+  </form>
+  {% if search_results %}
+    <div>
+      {% for result in search_results %}
+        <div>
+          <a href="{{ result.url }}">{{ result.url }}</a>
+        </div>
+        <div>
+          {{ result.caption|safe }}
+        </div>
+        <div>
+          {{ result.startTime }} -
+          {{ result.endTime }}
+        </div>
+        <br/>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
