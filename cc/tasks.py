@@ -25,7 +25,7 @@ def run_ccextractor(video_path, file_url):
     except Video.DoesNotExist:
         Video.objects.create(
             videoId=video_file_hash,
-            title=video_path,
+            title=video_path.split("/")[-1],
             description="",
             url=file_url,
         )
