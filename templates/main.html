@@ -14,20 +14,26 @@
   <form method="post" style="margin-top: 2rem">
     {% csrf_token %}
     <div>
-    {% for video in videos %}
-      <div>
-        <input type="radio" name="videoId" value="{{ video.videoId }}" id="video-{{ video.videoId }}" required>
-        <label for="video-{{ video.videoId }}">
-          <strong>{{ video.title }}</strong> - {{ video.description }}
-        </label>
+      {% for video in videos %}
         <div>
-          <video src="{{ video.url }}" controls width="50%"></video>
+        {% if video.videoId == "60ac9f32ba0277aff210c61fd9e51884" %}
+          <input type="radio" name="videoId" value="{{ video.videoId }}" id="video-{{ video.videoId }}" required checked>
+        {% else %}
+          <input type="radio" name="videoId" value="{{ video.videoId }}" id="video-{{ video.videoId }}" required>
+        {% endif %}
+          <label for="video-{{ video.videoId }}">
+            <strong>{{ video.title }}</strong> - {{ video.description }}
+          </label>
+          <div>
+            <video src="{{ video.url }}" controls width="25%"></video>
+          </div>
         </div>
-      </div>
-    {% endfor %}
-  </div>
-    <input type="text" name="search" placeholder="Search">
-    <button type="submit" name="action" value="search">Search</button>
+      {% endfor %}
+    </div>
+    <div style="width: 100%; padding-top: 2rem">
+      <input type="text" name="search" placeholder="Search Keywords" style="width: 90%">
+      <button type="submit" name="action" value="search"> Search </button>
+    </div>
   </form>
 
   {% if search_results %}
