@@ -23,12 +23,12 @@ def upload_video(request):
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
             )
-            # s3_client.upload_fileobj(
-            #     file,
-            #     settings.AWS_STORAGE_BUCKET_NAME,
-            #     file.name,
-            #     ExtraArgs={"ACL": settings.AWS_DEFAULT_ACL},
-            # )
+            s3_client.upload_fileobj(
+                file,
+                settings.AWS_STORAGE_BUCKET_NAME,
+                file.name,
+                ExtraArgs={"ACL": settings.AWS_DEFAULT_ACL},
+            )
             s3_file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{file.name}"
             messages.success(
                 request, "Upload successful! Your file URL is: " + s3_file_url
