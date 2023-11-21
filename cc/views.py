@@ -53,7 +53,6 @@ def upload_video(request):
                 hash_key=videoId,
                 filter_condition=ClosedCaption.caption.contains(search),
             )
-            print(search_results)
             return render(
                 request,
                 "main.html",
