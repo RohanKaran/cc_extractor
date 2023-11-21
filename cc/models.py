@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from django.db.models import Model, TextField, CharField, DateTimeField
+from django.utils.timezone import now
 from pynamodb.attributes import UnicodeAttribute
 from pynamodb.models import Model as PynamoModel
 
@@ -21,5 +20,5 @@ class Video(Model):
     videoId = CharField(primary_key=True, max_length=64)
     title = CharField(max_length=200)
     description = TextField()
-    upload_date = DateTimeField(default=datetime.utcnow, db_index=True)
+    upload_date = DateTimeField(default=now, db_index=True)
     url = CharField(max_length=200)

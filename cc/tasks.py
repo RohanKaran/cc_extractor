@@ -4,6 +4,7 @@ import subprocess
 
 from celery import shared_task
 from django.core.files.storage import FileSystemStorage
+from django.utils.timezone import now
 
 from cc.models import ClosedCaption, Video
 
@@ -19,6 +20,7 @@ def run_ccextractor(video_path, file_url):
     try:
         video = Video.objects.get(pk=video_file_hash)
         video.url = file_url
+        video.upload_date = now()
         video.save()
     except Video.DoesNotExist:
         Video.objects.create(
@@ -27,8 +29,13 @@ def run_ccextractor(video_path, file_url):
             description="",
             url=file_url,
         )
-
-    if ClosedCaption.query(hash_key=video_file_hash, limit=1).total_count > 1:
+    cc = ClosedCaption.query(video_file_hash, limit=1)
+    count = 0
+    for _ in cc:
+        count += 1
+    if count > 0:
+        print("cc found")
+        storage.delete(video_path)
         return
 
     subtitle_path = storage.get_available_name("subtitles.srt")
