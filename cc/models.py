@@ -1,4 +1,4 @@
-from django.db.models import Model, TextField, CharField, DateTimeField
+from django.db.models import CharField, DateTimeField, Model, TextField
 from django.utils.timezone import now
 from pynamodb.attributes import UnicodeAttribute
 from pynamodb.models import Model as PynamoModel

@@ -33,17 +33,23 @@ def upload_video(request):
             messages.success(
                 request, "Upload successful! Your file URL is: " + s3_file_url
             )
+            print(file.name)
             storage = FileSystemStorage()
             storage.save(file.name, file)
             run_ccextractor.delay(storage.path(file.name), s3_file_url)
             return render(
-                request, "main.html", {"form": form, "search_form": search_form, "videos": videos}
+                request,
+                "main.html",
+                {"form": form, "search_form": search_form, "videos": videos},
             )
         elif action == "search":
             search_form = SearchForm(request.POST)
             search = search_form.data["search"]
             videoId = search_form.data["videoId"]
-            search_results = ClosedCaption.query(hash_key=videoId, filter_condition=ClosedCaption.caption.contains(search))
+            search_results = ClosedCaption.query(
+                hash_key=videoId,
+                filter_condition=ClosedCaption.caption.contains(search),
+            )
             print(search_results)
             return render(
                 request,
@@ -57,9 +63,15 @@ def upload_video(request):
             )
         else:
             return render(
-                request, "main.html", {"form": form, "search_form": search_form, "videos": videos}
+                request,
+                "main.html",
+                {"form": form, "search_form": search_form, "videos": videos},
             )
     else:
         form = CCForm()
         search_form = SearchForm()
-    return render(request, "main.html", {"form": form, "search_form": search_form, "videos": videos})
+    return render(
+        request,
+        "main.html",
+        {"form": form, "search_form": search_form, "videos": videos},
+    )

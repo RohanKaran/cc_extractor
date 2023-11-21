@@ -8,5 +8,7 @@ class CCForm(forms.Form):
 
 
 class SearchForm(forms.Form):
-    videoId = forms.RadioSelect(choices=[video.videoId for video in Video.objects.all()])
+    videoId = forms.RadioSelect(
+        choices=[video.videoId for video in Video.objects.all()]
+    )
     search = forms.CharField(max_length=100)
