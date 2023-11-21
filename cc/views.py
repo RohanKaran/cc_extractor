@@ -33,7 +33,7 @@ def upload_video(request):
             messages.success(
                 request, "Upload successful! Your file URL is: " + s3_file_url
             )
-            print(file.name)
+            file.seek(0)
             storage = FileSystemStorage()
             storage.save(file.name, file)
             run_ccextractor.delay(storage.path(file.name), s3_file_url)
