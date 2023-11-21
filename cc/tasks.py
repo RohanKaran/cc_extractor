@@ -40,7 +40,7 @@ def run_ccextractor(video_path, file_url):
 
     subtitle_path = storage.get_available_name("subtitles.srt")
     command = [
-        r"D:\Program Files (x86)\CCExtractor\ccextractorwinfull.exe",
+        r"ccextractor",
         video_path,
         "-o",
         subtitle_path,
