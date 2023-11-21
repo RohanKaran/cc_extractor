@@ -1,9 +1,9 @@
 <div style="text-align: center; margin-top: 2rem">
   {% if messages %}
     {% for message in messages %}
-        <div class="message">
-            {{ message|urlize }}
-        </div>
+      <div class="message">
+        {{ message|urlize }}
+      </div>
     {% endfor %}
   {% endif %}
   <form method="post" enctype="multipart/form-data" name="upload">
@@ -13,9 +13,23 @@
   </form>
   <form method="post" style="margin-top: 2rem">
     {% csrf_token %}
-    {{ search_form.as_p }}
+    <div>
+    {% for video in videos %}
+      <div>
+        <input type="radio" name="videoId" value="{{ video.videoId }}" id="video-{{ video.videoId }}" required>
+        <label for="video-{{ video.videoId }}">
+          <strong>{{ video.title }}</strong> - {{ video.description }}
+        </label>
+        <div>
+          <iframe src="{{ video.url }}" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+    <input type="text" name="search" placeholder="Search">
     <button type="submit" name="action" value="search">Search</button>
   </form>
+
   {% if search_results %}
     <div>
       {% for result in search_results %}

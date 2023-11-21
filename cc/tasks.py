@@ -1,12 +1,11 @@
 import hashlib
 import re
 import subprocess
-import uuid
 
 from celery import shared_task
 from django.core.files.storage import FileSystemStorage
 
-from cc.models import ClosedCaption
+from cc.models import ClosedCaption, Video
 
 
 @shared_task
@@ -17,6 +16,18 @@ def run_ccextractor(video_path, file_url):
         for chunk in iter(lambda: file.read(10485760), b""):
             hash_md5.update(chunk)
     video_file_hash = hash_md5.hexdigest()
+    try:
+        video = Video.objects.get(pk=video_file_hash)
+        video.url = file_url
+        video.save()
+    except Video.DoesNotExist:
+        Video.objects.create(
+            videoId=video_file_hash,
+            title=video_path,
+            description="",
+            url=file_url,
+        )
+
     if ClosedCaption.query(hash_key=video_file_hash, limit=1).total_count > 1:
         return
 

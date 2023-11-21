@@ -5,11 +5,12 @@ from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render
 
 from .forms import CCForm, SearchForm
-from .models import ClosedCaption
+from .models import ClosedCaption, Video
 from .tasks import run_ccextractor
 
 
 def upload_video(request):
+    videos = Video.objects.all()
     if request.method == "POST":
         form = CCForm()
         search_form = SearchForm()
@@ -36,14 +37,14 @@ def upload_video(request):
             storage.save(file.name, file)
             run_ccextractor.delay(storage.path(file.name), s3_file_url)
             return render(
-                request, "main.html", {"form": form, "search_form": search_form}
+                request, "main.html", {"form": form, "search_form": search_form, "videos": videos}
             )
         elif action == "search":
             search_form = SearchForm(request.POST)
             search = search_form.data["search"]
-            search_results = ClosedCaption.scan(
-                filter_condition=ClosedCaption.caption.contains(search)
-            )
+            videoId = search_form.data["videoId"]
+            search_results = ClosedCaption.query(hash_key=videoId, filter_condition=ClosedCaption.caption.contains(search))
+            print(search_results)
             return render(
                 request,
                 "main.html",
@@ -51,13 +52,14 @@ def upload_video(request):
                     "search_form": search_form,
                     "search_results": search_results,
                     "form": form,
+                    "videos": videos,
                 },
             )
         else:
             return render(
-                request, "main.html", {"form": form, "search_form": search_form}
+                request, "main.html", {"form": form, "search_form": search_form, "videos": videos}
             )
     else:
         form = CCForm()
         search_form = SearchForm()
-    return render(request, "main.html", {"form": form, "search_form": search_form})
+    return render(request, "main.html", {"form": form, "search_form": search_form, "videos": videos})
