@@ -18,6 +18,8 @@ def upload_video(request):
         if action == "upload":
             form = CCForm(request.POST, request.FILES)
             file = request.FILES["file"]
+            storage = FileSystemStorage()
+            storage.save(file.name, file)
             s3_client = boto3.client(
                 "s3",
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -31,13 +33,13 @@ def upload_video(request):
             )
             s3_file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{file.name}"
             messages.success(
-                request, "Upload successful! Your file URL is: " + s3_file_url
+                request,
+                "Upload successful! Your file URL is: "
+                + s3_file_url
+                + ". "
+                + "Refresh the page to see your video.",
             )
-            file_path = file.temporary_file_path()
-            with open(file_path, 'rb') as reopened_file:
-                storage = FileSystemStorage()
-                storage.save(file.name, reopened_file)
-                run_ccextractor.delay(storage.path(file.name), s3_file_url)
+            run_ccextractor.delay(storage.path(file.name), s3_file_url)
             return render(
                 request,
                 "main.html",
