@@ -20,6 +20,7 @@ def upload_video(request):
             file = request.FILES["file"]
             storage = FileSystemStorage()
             storage.save(file.name, file)
+            file.seek(0)
             s3_client = boto3.client(
                 "s3",
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
