@@ -37,9 +37,9 @@ def main(request):
                 file.name,
                 ExtraArgs={"ACL": settings.AWS_DEFAULT_ACL},
             )
-            s3_file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{file.name}"
+            s3_file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{quote(file.name)}"
             messages.success(
-                request, "Upload successful! Your file URL is: " + quote(s3_file_url)
+                request, "Upload successful! Your file URL is: " + s3_file_url
             )
             run_ccextractor.delay(storage.path(file.name), s3_file_url)
             return redirect("main")
