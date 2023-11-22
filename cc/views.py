@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 import boto3
 from django.conf import settings
 from django.contrib import messages
@@ -37,7 +39,7 @@ def main(request):
             )
             s3_file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{file.name}"
             messages.success(
-                request, "Upload successful! Your file URL is: " + s3_file_url
+                request, "Upload successful! Your file URL is: " + quote(s3_file_url)
             )
             run_ccextractor.delay(storage.path(file.name), s3_file_url)
             return redirect("main")
