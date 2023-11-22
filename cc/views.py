@@ -2,21 +2,24 @@ import boto3
 from django.conf import settings
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .forms import CCForm, SearchForm
 from .models import ClosedCaption, Video
 from .tasks import run_ccextractor
 
 
-def upload_video(request):
+def main(request):
     videos = Video.objects.all()
+    form = CCForm()
+    search_form = SearchForm()
     if request.method == "POST":
-        form = CCForm()
-        search_form = SearchForm()
         action = request.POST.get("action")
         if action == "upload":
             form = CCForm(request.POST, request.FILES)
+            if not form.is_valid():
+                messages.error(request, "Invalid form.")
+                return redirect("main")
             file = request.FILES["file"]
             storage = FileSystemStorage()
             storage.save(file.name, file)
@@ -41,40 +44,34 @@ def upload_video(request):
                 + "Refresh the page to see your video.",
             )
             run_ccextractor.delay(storage.path(file.name), s3_file_url)
-            return render(
-                request,
-                "main.html",
-                {"form": form, "search_form": search_form, "videos": videos},
-            )
+            return redirect("main")
         elif action == "search":
             search_form = SearchForm(request.POST)
+            if not search_form.is_valid():
+                messages.error(request, "Invalid form.")
+                return redirect("main")
             search = search_form.data["search"]
             videoId = search_form.data["videoId"]
             search_results = ClosedCaption.query(
                 hash_key=videoId,
                 filter_condition=ClosedCaption.caption.contains(search),
             )
-            return render(
-                request,
-                "main.html",
-                {
-                    "search_form": search_form,
-                    "search_results": search_results,
-                    "form": form,
-                    "videos": videos,
-                },
-            )
+            search_results = [result.attribute_values for result in search_results]
+            request.session["search_results"] = search_results
+            return redirect("main")
         else:
-            return render(
-                request,
-                "main.html",
-                {"form": form, "search_form": search_form, "videos": videos},
-            )
+            messages.error(request, "Invalid form.")
+            return redirect("main")
+
     else:
-        form = CCForm()
-        search_form = SearchForm()
+        search_results = request.session.get("search_results")
+        if search_results:
+            del request.session["search_results"]
+        else:
+            search_results = []
+    print(search_results)
     return render(
         request,
         "main.html",
-        {"form": form, "search_form": search_form, "videos": videos},
+        {"videos": videos, "form": form, "search_form": search_form, "search_results": search_results},
     )

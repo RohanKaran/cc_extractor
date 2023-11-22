@@ -19,4 +19,4 @@ from django.urls import path
 
 from cc import views
 
-urlpatterns = [path("admin/", admin.site.urls), path("", views.upload_video)]
+urlpatterns = [path("admin/", admin.site.urls), path("", views.main, name="main")]
