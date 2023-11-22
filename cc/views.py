@@ -2,7 +2,7 @@ import boto3
 from django.conf import settings
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 
 from .forms import CCForm, SearchForm
 from .models import ClosedCaption, Video
@@ -37,11 +37,7 @@ def main(request):
             )
             s3_file_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{file.name}"
             messages.success(
-                request,
-                "Upload successful! Your file URL is: "
-                + s3_file_url
-                + ". "
-                + "Refresh the page to see your video.",
+                request, "Upload successful! Your file URL is: " + s3_file_url
             )
             run_ccextractor.delay(storage.path(file.name), s3_file_url)
             return redirect("main")
@@ -69,9 +65,13 @@ def main(request):
             del request.session["search_results"]
         else:
             search_results = []
-    print(search_results)
     return render(
         request,
         "main.html",
-        {"videos": videos, "form": form, "search_form": search_form, "search_results": search_results},
+        {
+            "videos": videos,
+            "form": form,
+            "search_form": search_form,
+            "search_results": search_results,
+        },
     )
